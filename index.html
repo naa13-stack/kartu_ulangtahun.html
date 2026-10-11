@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smooth Love Heart Animation</title>
+    <title>Smooth Love Heart Animation (0.5 Detik/Detak)</title>
     <style>
         * {
             margin: 0;
@@ -23,7 +23,7 @@
 
         canvas {
             display: block;
-            filter: drop-shadow(0 0 10px rgba(255, 42, 109, 0.3));
+            filter: drop-shadow(0 0 12px rgba(255, 42, 109, 0.4));
         }
     </style>
 </head>
@@ -36,9 +36,44 @@
         const ctx = canvas.getContext('2d');
 
         let width, height;
+
+        // Cache emoji ke offscreen canvas untuk performa optimal
+        const stickerEmojis = ['💖', '❤️', '💕', '💗', '💓', '✨'];
+        const emojiSprites = stickerEmojis.map(emoji => {
+            const c = document.createElement('canvas');
+            c.width = 50;
+            c.height = 50;
+            const cx = c.getContext('2d');
+            cx.font = '32px sans-serif';
+            cx.textAlign = 'center';
+            cx.textBaseline = 'middle';
+            cx.fillText(emoji, 25, 25);
+            return c;
+        });
+
+        const bgHearts = [];
+        function initBgHearts() {
+            bgHearts.length = 0;
+            const count = Math.floor((width * height) / 15000);
+            for (let i = 0; i < count; i++) {
+                bgHearts.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    scale: 0.5 + Math.random() * 0.7,
+                    speedY: 0.4 + Math.random() * 0.8,
+                    speedX: (Math.random() - 0.5) * 0.5,
+                    opacity: 0.2 + Math.random() * 0.5,
+                    sprite: emojiSprites[Math.floor(Math.random() * emojiSprites.length)],
+                    angle: Math.random() * Math.PI * 2,
+                    spinSpeed: (Math.random() - 0.5) * 0.02
+                });
+            }
+        }
+
         function resize() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
+            initBgHearts();
         }
         resize();
         window.addEventListener('resize', resize);
@@ -50,14 +85,12 @@
             "Anh yêu em", "Ik hou van je", "Eu te amo", "Mahal kita"
         ];
 
- 
         function heartPoint(t, scale) {
             const x = 16 * Math.pow(Math.sin(t), 3);
             const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
             return { x: x * scale, y: y * scale };
         }
 
-        // Menyusun koordinat teks secara terstruktur dan rapi
         const items = [];
         const totalItems = 280;
 
@@ -75,20 +108,49 @@
             });
         }
 
-        let progress = 0;
-        let time = 0;
+        let startTime = null;
+        const duration = 5000; // Durasi pembentukan tepat 5 detik
 
-        function render() {
-            // Memberikan efek bayangan jejak yang sangat lembut
-            ctx.fillStyle = 'rgba(5, 2, 10, 0.2)';
+        function updateAndDrawBgHearts(timeSec) {
+            for (let heart of bgHearts) {
+                heart.y -= heart.speedY;
+                heart.x += Math.sin(timeSec * 2 + heart.y * 0.01) * heart.speedX;
+                heart.angle += heart.spinSpeed;
+
+                if (heart.y < -50) {
+                    heart.y = height + 50;
+                    heart.x = Math.random() * width;
+                }
+
+                ctx.save();
+                ctx.globalAlpha = heart.opacity * (0.8 + 0.2 * Math.sin(timeSec * 3 + heart.x));
+                ctx.translate(heart.x, heart.y);
+                ctx.rotate(heart.angle);
+                ctx.scale(heart.scale, heart.scale);
+                ctx.drawImage(heart.sprite, -25, -25);
+                ctx.restore();
+            }
+        }
+
+        function render(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+            const timeSec = timestamp / 1000;
+
+            const progressRatio = Math.min(elapsed / duration, 1);
+            const visibleCount = Math.floor(progressRatio * totalItems);
+
+            ctx.fillStyle = 'rgba(5, 2, 10, 0.3)';
             ctx.fillRect(0, 0, width, height);
+
+            updateAndDrawBgHearts(timeSec);
 
             const cx = width / 2;
             const cy = height / 2;
-            const visibleCount = Math.floor(progress);
 
-            // Efek denyutan lembut (heartbeat pulse)
-            const pulse = 1 + 0.02 * Math.sin(time * 2);
+            // Tempo detak disesuaikan tepat 0.5 detik per detak
+            const beat = Math.pow(Math.sin(timeSec * Math.PI / 0.5), 8) * 0.12;
+            const pulse = 1 + beat;
 
             for (let i = 0; i < visibleCount; i++) {
                 const item = items[i];
@@ -98,21 +160,16 @@
                 const y = cy + pos.y;
 
                 ctx.fillStyle = `hsl(${item.hue}, 100%, 65%)`;
-                ctx.font = `bold ${item.size}px 'Segoe UI', sans-serif`;
+                ctx.font = `bold ${item.size * pulse}px 'Segoe UI', sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(item.phrase, x, y);
             }
 
-            if (progress < items.length) {
-                progress += 1.2; // Kecepatan susunan teks kemunculan awal
-            }
-
-            time += 0.03;
             requestAnimationFrame(render);
         }
 
-        render();
+        requestAnimationFrame(render);
     </script>
 </body>
 </html>
