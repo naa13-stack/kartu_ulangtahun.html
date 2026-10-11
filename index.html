@@ -3,40 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heart Text Animation</title>
+    <title>Smooth Love Heart Animation</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            background-color: #0d0d0d;
+            background-color: #05020a;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             overflow: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
+
         canvas {
             display: block;
+            filter: drop-shadow(0 0 10px rgba(255, 42, 109, 0.3));
         }
     </style>
 </head>
 <body>
+
     <canvas id="heartCanvas"></canvas>
 
     <script>
         const canvas = document.getElementById('heartCanvas');
         const ctx = canvas.getContext('2d');
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        let width, height;
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
         }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        resize();
+        window.addEventListener('resize', resize);
 
         const phrases = [
             "I love you", "Aku cinta kamu", "Te amo", "Je t'aime", 
@@ -45,52 +50,69 @@
             "Anh yêu em", "Ik hou van je", "Eu te amo", "Mahal kita"
         ];
 
-        // Rumus Matematika Bentuk Hati (Parametric Heart Equation)
-        function getHeartPoint(t, scale) {
+        // Rumus matematika bentuk hati
+        function heartPoint(t, scale) {
             const x = 16 * Math.pow(Math.sin(t), 3);
             const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-            return {
-                x: canvas.width / 2 + x * scale,
-                y: canvas.height / 2 + y * scale
-            };
+            return { x: x * scale, y: y * scale };
         }
 
-        let currentStep = 0;
-        const totalSteps = 100;
-        let phraseIndex = 0;
+        // Menyusun koordinat teks secara terstruktur dan rapi
+        const items = [];
+        const totalItems = 280;
 
-        function drawNext() {
-            if (currentStep < totalSteps) {
-                const t = (currentStep / totalSteps) * Math.PI * 2;
+        for (let i = 0; i < totalItems; i++) {
+            const t = (i / totalItems) * Math.PI * 2;
+            const layer = (i % 4) + 1; 
+            const scale = 14 * (layer / 4);
+            
+            items.push({
+                t,
+                scale,
+                phrase: phrases[i % phrases.length],
+                hue: 330 + (i % 30),
+                size: 9 + (layer * 1.5)
+            });
+        }
 
-                // Mengisi bagian dalam dan garis luar bentuk hati
-                for (let r = 0.4; r <= 1.5; r += 0.30) {
-                    const scale = 16 * r;
-                    const pos = getHeartPoint(t, scale);
-                    const phrase = phrases[phraseIndex % phrases.length];
-                    phraseIndex++;
+        let progress = 0;
+        let time = 0;
 
-                    // Variasi warna merah terang hingga merah keemasan
-                    const alpha = 0.7 + Math.random() * 0.3;
-                    ctx.fillStyle = `rgba(255, ${Math.floor(40 + Math.random() * 50)}, ${Math.floor(60 + Math.random() * 40)}, ${alpha})`;
-                    
-                    const fontSize = Math.floor(10 + Math.random() * 6);
-                    ctx.font = `bold ${fontSize}px sans-serif`;
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
+        function render() {
+            // Memberikan efek bayangan jejak yang sangat lembut
+            ctx.fillStyle = 'rgba(5, 2, 10, 0.2)';
+            ctx.fillRect(0, 0, width, height);
 
-                    const offsetX = (Math.random() - 0.5) * 8;
-                    const offsetY = (Math.random() - 0.5) * 8;
+            const cx = width / 2;
+            const cy = height / 2;
+            const visibleCount = Math.floor(progress);
 
-                    ctx.fillText(phrase, pos.x + offsetX, pos.y + offsetY);
-                }
+            // Efek denyutan lembut (heartbeat pulse)
+            const pulse = 1 + 0.02 * Math.sin(time * 2);
 
-                currentStep++;
-                setTimeout(drawNext, 38); // Kecepatan kemunculan teks
+            for (let i = 0; i < visibleCount; i++) {
+                const item = items[i];
+                const pos = heartPoint(item.t, item.scale * pulse);
+                
+                const x = cx + pos.x;
+                const y = cy + pos.y;
+
+                ctx.fillStyle = `hsl(${item.hue}, 100%, 65%)`;
+                ctx.font = `bold ${item.size}px 'Segoe UI', sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(item.phrase, x, y);
             }
+
+            if (progress < items.length) {
+                progress += 1.2; // Kecepatan susunan teks kemunculan awal
+            }
+
+            time += 0.03;
+            requestAnimationFrame(render);
         }
 
-        drawNext();
+        render();
     </script>
 </body>
 </html>
