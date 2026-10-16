@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday My Favorite Person 🤍✨</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            /* Gradasi Soft Pastel Pink */
+            background: linear-gradient(135deg, #ffdeeb 0%, #fcd5ce 50%, #f8edeb 100%);
+            font-family: 'Poppins', sans-serif;
+            color: #4a152d;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px 10px;
+        }
+
+        /* Canvas Kembang Api Fullscreen */
+        canvas#fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Wadah Utama Glassmorphism Putih Soft */
+        .card-container {
+            width: 100%;
+            max-width: 520px;
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 28px;
+            padding: 35px 25px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(216, 27, 96, 0.12);
+            z-index: 2;
+            position: relative;
+        }
+
+        .header-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 32px;
+            color: #d81b60;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 8px rgba(216, 27, 96, 0.15);
+        }
+
+        .header-subtitle {
+            font-size: 13px;
+            color: #7a3b53;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        /* Tampilan Kue Ulang Tahun & Lilin (Sudah Disesuaikan Turun Ke Bawah) */
+        .cake-section {
+            margin: 65px auto 30px;
+            width: 180px;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .cake-body {
+            width: 150px;
+            height: 95px;
+            background: linear-gradient(to bottom, #ff85a2, #f74278);
+            border-radius: 18px 18px 8px 8px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: inset 0 -15px 0 #d81b60, inset 0 15px 0 #ffffff, 0 10px 25px rgba(247, 66, 120, 0.3);
+        }
+
+        .cake-topping {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 25px;
+            background: #ffffff;
+            border-radius: 18px 18px 12px 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+        }
+
+        .candle-stick {
+            width: 12px;
+            height: 45px;
+            background: repeating-linear-gradient(45deg, #ffffff, #ffffff 6px, #ff80ab 6px, #ff80ab 12px);
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .flame-light {
+            width: 16px;
+            height: 24px;
+            background: #ff9d00;
+            border-radius: 50% 50% 20% 50%;
+            transform: rotate(-45deg) translateX(-50%);
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            box-shadow: 0 0 20px #ff9d00, 0 0 40px #ff3b00, 0 0 60px #ff9d00;
+            animation: flickerAnim 0.25s infinite alternate;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        @keyframes flickerAnim {
+            0% { transform: scale(1) rotate(-45deg); }
+            100% { transform: scale(1.18) rotate(-43deg); }
+        }
+
+        .flame-light.out {
+            opacity: 0;
+            transform: scale(0) rotate(-45deg);
+        }
+
+        /* Asap saat lilin ditiup */
+        .smoke-particle {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: rgba(180, 180, 180, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: smokeUp 1.5s ease-out forwards;
+        }
+
+        @keyframes smokeUp {
+            0% { transform: translate(-50%, 0) scale(1); opacity: 0.8; }
+            100% { transform: translate(-50%, -40px) scale(3); opacity: 0; }
+        }
+
+        /* Kotak Surat Cinta */
+        .letter-container {
+            display: none;
+            text-align: left;
+            margin-top: 25px;
+            padding: 22px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #3d1223;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(216, 27, 96, 0.15);
+            max-height: 380px;
+            overflow-y: auto;
+            font-size: 13.5px;
+            line-height: 1.85;
+            position: relative;
+            border: 1px solid #ffe0b2;
+        }
+
+        .letter-header {
+            font-family: 'Dancing Script', cursive;
+            font-size: 26px;
+            color: #d81b60;
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px dashed #ff80ab;
+            padding-bottom: 8px;
+        }
+
+        .typing-cursor {
+            display: inline-block;
+            width: 3px;
+            height: 15px;
+            background-color: #d81b60;
+            margin-left: 3px;
+            vertical-align: middle;
+            animation: blinkAnim 0.7s infinite;
+        }
+
+        @keyframes blinkAnim {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Tombol Aksi Pink Gradient */
+        .action-group {
+            display: none;
+            margin-top: 20px;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-custom {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #ff85a2, #ff4081);
+            border: none;
+            color: #ffffff;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255, 64, 129, 0.3);
+            transition: all 0.25s ease;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 8px 25px rgba(255, 64, 129, 0.5);
+        }
+
+        /* Partikel Hati Melayang */
+        .floating-heart-item {
+            position: fixed;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 100;
+            animation: floatUpAnim 3s ease-in forwards;
+        }
+
+        @keyframes floatUpAnim {
+            0% { transform: translateY(0) scale(0.8) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) scale(1.4) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="fireworks"></canvas>
+
+    <div class="card-container">
+        <h1 class="header-title" id="mainTitle">Happy Birthday My Favorite Person 🤍✨</h1>
+        <p class="header-subtitle" id="subTitle">(Sentuh kue/lilin di bawah untuk tiup apinya!)</p>
+
+        <!-- Area Kue Ulang Tahun & Lilin -->
+        <div class="cake-section" id="cakeSection" onclick="blowCandleAction()">
+            <div class="candle-stick">
+                <div class="flame-light" id="flameLight"></div>
+            </div>
+            <div class="cake-body">
+                <div class="cake-topping"></div>
+            </div>
+        </div>
+
+        <!-- Surat Pesan Ucapan -->
+        <div class="letter-container" id="letterContainer">
+            <div class="letter-header">For You, My Favorite Person 🤍</div>
+            <div id="typedLetter"></div><span class="typing-cursor" id="cursorElem"></span>
+        </div>
+
+        <!-- Tombol Interaktif -->
+        <div class="action-group" id="actionGroup">
+            <button class="btn-custom" onclick="triggerFireworksSpam()">Pesta Kembang Api 🎆</button>
+            <button class="btn-custom" onclick="spamLoveHearts()">Spam Love 💖</button>
+        </div>
+    </div>
+
+    <!-- LOGIKA JAVASCRIPT GABUNGAN -->
+    <script>
+        // Teks Surat Ucapan Ulang Tahun
+        const loveLetterText = `Happy birthday, my favorite person 🤍✨🤍✨🤍✨
+
+Hari ini harinya kamu, dan aku cuma mau ngambil momen ini buat bilang betapa berartinya kamu di hidup aku. Honestly, aku sering banget mikir betapa beruntungnya aku bisa dapet pasangan kayak kamu. Kamu selalu paham kapan harus ngasih semangat, kapan harus nemenin pas aku butuh ruang, dan selalu bisa bikin suasana tenang pas aku lagi pusing sama keadaan.
+
+Makasih udah jadi orang yang paling konsisten sayang sama aku, yang selalu nanya kabar dengan tulus, dan gak pernah lelah buat ngertiin aku. Bersama kamu, aku belajar banyak tentang cara saling melengkapi tanpa harus pura-pura jadi orang lain. Kamu tuh beneran pembawa tenang di tengah riuhnya hari-hari aku.
+
+Semoga di usia yang baru ini, kamu makin sayang sama diri kamu sendiri. Jangan terlalu keras sama diri sendiri kalau ada hal yang belum berjalan sesuai rencana ya. You are doing so great, dan aku bangga banget ngeliat kamu tumbuh dari dekat. Semoga tahun ini bawa banyak kebaikan, kesehatan, dan kebahagiaan melimpah buat kamu.
+
+Kita jalanin semuanya pelan-pelan bareng ya. Sekali lagi, selamat ulang tahun, cantik. May your new age bring you endless joy and peace. I’m always here for you. 💌🌷`;
+
+        // Canvas Kembang Api Setup
+        const canvas = document.getElementById('fireworks');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        let particles = [];
+
+        function createFireworkCluster(x, y) {
+            const colorPalette = ['#ff416c', '#ff4b2b', '#ffb7b2', '#ffdac1', '#e2f0cb', '#b5ead7', '#ff9aa2', '#ffd700', '#ffffff'];
+            for (let i = 0; i < 70; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 7 + 2;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    alpha: 1,
+                    color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
+                    decay: Math.random() * 0.015 + 0.005
+                });
+            }
+        }
+
+        function renderFireworksAnimation() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.05; // Efek Gravitasi
+                p.alpha -= p.decay;
+
+                ctx.save();
+                ctx.globalAlpha = Math.max(p.alpha, 0);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+
+                if (p.alpha <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+            requestAnimationFrame(renderFireworksAnimation);
+        }
+
+        renderFireworksAnimation();
+
+        // EFEK OTOMATIS SAAT HALAMAN PERTAMA DIBUKA
+        window.addEventListener('load', () => {
+            // 1. Kembang api di awal
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    createFireworkCluster(
+                        Math.random() * (canvas.width * 0.8) + canvas.width * 0.1,
+                        Math.random() * (canvas.height * 0.5) + canvas.height * 0.1
+                    );
+                }, i * 250);
+            }
+
+            // 2. Spam love otomatis tanpa henti
+            setTimeout(() => {
+                setInterval(createFloatingHeart, 350);
+            }, 1200);
+        });
+
+        let isCandleBlown = false;
+
+        // Fungsi Utama: Tiup Lilin
+        function blowCandleAction() {
+            if (isCandleBlown) return;
+            isCandleBlown = true;
+
+            const flame = document.getElementById('flameLight');
+            flame.classList.add('out');
+            createSmokeEffect();
+
+            document.getElementById('mainTitle').innerText = "Make A Wish, Sayang! 🎉";
+            document.getElementById('subTitle').style.display = "none";
+
+            for (let i = 0; i < 6; i++) {
+                setTimeout(() => {
+                    createFireworkCluster(
+                        Math.random() * (canvas.width * 0.8) + canvas.width * 0.1,
+                        Math.random() * (canvas.height * 0.5) + canvas.height * 0.1
+                    );
+                }, i * 280);
+            }
+
+            setTimeout(() => {
+                document.getElementById('letterContainer').style.display = "block";
+                document.getElementById('actionGroup').style.display = "flex";
+                startTypewriterEffect();
+            }, 1000);
+        }
+
+        // Efek Mengetik Teks Real-Time
+        let charIndex = 0;
+        function startTypewriterEffect() {
+            const targetElem = document.getElementById('typedLetter');
+            const letterBox = document.getElementById('letterContainer');
+
+            function typeNextChar() {
+                if (charIndex < loveLetterText.length) {
+                    const char = loveLetterText.charAt(charIndex);
+                    if (char === '\n') {
+                        targetElem.innerHTML += '<br>';
+                    } else {
+                        targetElem.innerHTML += char;
+                    }
+                    charIndex++;
+                    letterBox.scrollTop = letterBox.scrollHeight;
+                    setTimeout(typeNextChar, 35);
+                } else {
+                    document.getElementById('cursorElem').style.display = 'none';
+                }
+            }
+            typeNextChar();
+        }
+
+        // Efek Asap Lilin
+        function createSmokeEffect() {
+            const cakeSec = document.getElementById('cakeSection');
+            for (let i = 0; i < 3; i++) {
+                const smoke = document.createElement('div');
+                smoke.classList.add('smoke-particle');
+                smoke.style.left = `calc(50% + ${(Math.random() - 0.5) * 15}px)`;
+                cakeSec.appendChild(smoke);
+
+                setTimeout(() => smoke.remove(), 1500);
+            }
+        }
+
+        // Tombol Pesta Kembang Api Manual
+        function triggerFireworksSpam() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    createFireworkCluster(
+                        Math.random() * (canvas.width * 0.8) + canvas.width * 0.1,
+                        Math.random() * (canvas.height * 0.6) + canvas.height * 0.1
+                    );
+                }, i * 200);
+            }
+        }
+
+        // Tombol Spam Love Manual
+        function spamLoveHearts() {
+            for (let i = 0; i < 15; i++) {
+                setTimeout(createFloatingHeart, i * 60);
+            }
+        }
+
+        // Fungsi Pembuat Partikel Hati Melayang
+        function createFloatingHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('floating-heart-item');
+            const heartIcons = ['🤍', '✨', '💖', '💌', '🌷', '💕', '🎉'];
+            heart.innerHTML = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+            heart.style.left = Math.random() * 92 + 'vw';
+            heart.style.bottom = '-10px';
+            heart.style.animationDuration = (Math.random() * 1.5 + 2.5) + 's';
+            document.body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
